@@ -1,5 +1,9 @@
 export const i18n = {
   uk: {
+    navCounter: "Лічильник",
+    navCounterSub: "символів",
+    navJson: "Json-файл",
+    navJsonSub: "для генератора",
     placeholder: "Встав слова, кожне з нового рядка...",
     lines: "Рядків",
     tooLongStat: "Задовгих (>20)",
@@ -20,6 +24,10 @@ export const i18n = {
     copied: "Скопійовано!",
   },
   en: {
+    navCounter: "Counter",
+    navCounterSub: "characters",
+    navJson: "JSON file",
+    navJsonSub: "for generator",
     placeholder: "Paste items, one per line...",
     lines: "Lines",
     tooLongStat: "Too long (>20)",
@@ -40,6 +48,10 @@ export const i18n = {
     copied: "Copied!",
   },
   ru: {
+    navCounter: "Счётчик",
+    navCounterSub: "символов",
+    navJson: "Json-файл",
+    navJsonSub: "для генератора",
     placeholder: "Вставь строки...",
     lines: "Строк",
     tooLongStat: "Длинных (>20)",

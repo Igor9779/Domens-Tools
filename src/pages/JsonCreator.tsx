@@ -1,19 +1,16 @@
 import { useState } from "react";
-import { useOutletContext } from "react-router-dom";
-import { i18n } from "../i18n";
 
-type Lang = keyof typeof i18n;
-type TranslationKey = keyof (typeof i18n)["uk"];
+import JsonTextarea from "../components/json/JsonTextarea";
+import JsonStats from "../components/json/JsonStats";
+import JsonOutput from "../components/json/JsonOutput";
+
+import { useTranslation } from "../hooks/useTranslation";
 
 export default function JsonCreator() {
-  const { lang, setLang: _setLang } = useOutletContext<{
-    lang: Lang;
-    setLang: (lang: Lang) => void;
-  }>();
+  const { t } = useTranslation();
+
   const [text, setText] = useState("");
   const [json, setJson] = useState("");
-
-  const t = (key: TranslationKey) => i18n[lang][key];
 
   // строки
   const lines = text
@@ -45,34 +42,22 @@ export default function JsonCreator() {
     setJson(JSON.stringify(objects, null, 2));
   };
 
-  // копирование JSON
+  // копирование
   const handleCopy = () => {
     if (!json) return;
-
     navigator.clipboard.writeText(json);
   };
 
   return (
-    <div className="container">
-      {/* TEXTAREA */}
-      <div className="textarea-wrap">
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={t("jsonPlaceholder")}
-          spellCheck={false}
-        />
-      </div>
+    <>
+      <JsonTextarea
+        text={text}
+        setText={setText}
+        placeholder={t("jsonPlaceholder")}
+      />
 
-      {/* STATS */}
-      <div className="stats-bar">
-        <div className="stat-pill">
-          <span className="stat-label">{t("lines")}</span>
-          <span className="stat-value">{lines.length}</span>
-        </div>
-      </div>
+      <JsonStats count={lines.length} t={t} />
 
-      {/* BUTTONS */}
       <div className="buttons">
         <button className="btn-primary" onClick={handleCreate}>
           {t("create")}
@@ -89,30 +74,7 @@ export default function JsonCreator() {
         </button>
       </div>
 
-      {/* OUTPUT */}
-      {json && (
-        <div className="json-output">
-          <div className="json-meta">
-            <span className="json-header-label">{t("result")}</span>
-            <span className="json-count-badge">
-              {JSON.parse(json).length} {t("objects")}
-            </span>
-          </div>
-
-          <textarea
-            value={json}
-            readOnly
-            className="json-textarea"
-            spellCheck={false}
-          />
-
-          <div className="buttons" style={{ marginTop: "12px" }}>
-            <button className="btn-primary" onClick={handleCopy}>
-              {t("copyJson")}
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+      <JsonOutput json={json} t={t} onCopy={handleCopy} />
+    </>
   );
 }

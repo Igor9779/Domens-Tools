@@ -1,14 +1,32 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { i18n } from "../i18n";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Lang = keyof typeof i18n;
+type TranslationKey = keyof (typeof i18n)["uk"];
+
+const STORAGE_KEY = "app_lang";
 
 export default function MainLayout() {
-  const [lang, setLang] = useState<Lang>("uk");
+  // 🔥 правильная инициализация из localStorage
+  const [lang, setLang] = useState<Lang>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved && saved in i18n) {
+      return saved as Lang;
+    }
+    return "uk";
+  });
+
+  const t = (key: TranslationKey) => i18n[lang][key];
+
+  // 💾 сохраняем язык
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, lang);
+  }, [lang]);
 
   return (
     <div className="container">
+      {/* HEADER */}
       <div className="header">
         <nav className="app-nav">
           <NavLink
@@ -17,9 +35,9 @@ export default function MainLayout() {
               `app-nav-link ${isActive ? "active" : ""}`
             }
           >
-            Лічильник
+            {t("navCounter")}
             <br />
-            <span>символів</span>
+            <span>{t("navCounterSub")}</span>
           </NavLink>
 
           <NavLink
@@ -28,9 +46,9 @@ export default function MainLayout() {
               `app-nav-link ${isActive ? "active" : ""}`
             }
           >
-            Json-файл
+            {t("navJson")}
             <br />
-            <span>для генератора</span>
+            <span>{t("navJsonSub")}</span>
           </NavLink>
         </nav>
 

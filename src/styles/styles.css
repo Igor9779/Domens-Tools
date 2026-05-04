@@ -221,6 +221,10 @@ button:active { transform: scale(0.97); }
   margin-top: 28px;
 }
 
+#resultList {
+  margin-top: 28px;
+}
+
 .output-header {
   font-family: var(--mono);
   font-size: 0.65rem;
@@ -294,7 +298,6 @@ button:active { transform: scale(0.97); }
   color: var(--muted);
   font-family: var(--mono);
   font-size: 0.8rem;
-  display: none;
 }
 
 /* Divider */
@@ -307,7 +310,6 @@ button:active { transform: scale(0.97); }
 /* Too-long section */
 .toolong-section {
   margin-top: 28px;
-  display: none;
 }
 
 .toolong-header {
