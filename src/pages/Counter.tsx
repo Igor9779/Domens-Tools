@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { i18n } from "../i18n";
-import { Link, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 
 type Lang = keyof typeof i18n;
 type TranslationKey = keyof (typeof i18n)["uk"];
 
 export default function Counter() {
-  const { lang, setLang } = useOutletContext<{
+  const { lang, setLang: _setLang } = useOutletContext<{
     lang: Lang;
     setLang: (lang: Lang) => void;
   }>();
