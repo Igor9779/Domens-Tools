@@ -6,6 +6,12 @@ import JsonOutput from "../components/json/JsonOutput";
 
 import { useTranslation } from "../hooks/useTranslation";
 
+type JsonEntry = {
+  domain: string;
+  name_theme: string;
+  brand_name: string;
+};
+
 export default function JsonCreator() {
   const { t } = useTranslation();
 
@@ -25,7 +31,7 @@ export default function JsonCreator() {
       return;
     }
 
-    const objects = lines.reduce<any[]>((acc, line) => {
+    const objects = lines.reduce<JsonEntry[]>((acc, line) => {
       const parts = line.split(/\s[-–—]\s/);
 
       if (parts.length >= 3) {

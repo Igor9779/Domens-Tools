@@ -1,10 +1,11 @@
 import { useState } from "react";
+import type { TranslationFn } from "../../hooks/useTranslation";
 
 type Props = {
   lines: string[];
   longLines: string[];
   freq: Record<string, number>;
-  t: (k: any) => string;
+  t: TranslationFn;
   handleCopy: (v: string) => void;
 };
 

@@ -1,6 +1,8 @@
+import type { TranslationFn } from "../../hooks/useTranslation";
+
 type Props = {
   count: number;
-  t: (k: any) => string;
+  t: TranslationFn;
 };
 
 export default function JsonStats({ count, t }: Props) {

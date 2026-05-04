@@ -10,15 +10,11 @@ import { useTranslation } from "../hooks/useTranslation";
 export default function Counter() {
   const { t } = useTranslation();
 
-  const [text, setText] = useState("");
+  const [text, setText] = useState(
+    () => localStorage.getItem("counter_text") ?? ""
+  );
   const [submittedText, setSubmittedText] = useState("");
   const [copied, setCopied] = useState(false);
-
-  // 💾 localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("counter_text");
-    if (saved) setText(saved);
-  }, []);
 
   useEffect(() => {
     localStorage.setItem("counter_text", text);

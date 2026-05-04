@@ -1,6 +1,8 @@
+import type { TranslationFn } from "../../hooks/useTranslation";
+
 type Props = {
   json: string;
-  t: (k: any) => string;
+  t: TranslationFn;
   onCopy: () => void;
 };
 

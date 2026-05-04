@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/send-report",
+      "destination": "/api/send-report"
+    }
+  ]
+}

@@ -516,7 +516,7 @@ button:active {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
@@ -628,8 +628,72 @@ button:active {
   color: #b46fff;
 }
 
-.notepad-add-btn {
+.notepad-total-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: linear-gradient(
+    180deg,
+    rgba(200, 241, 53, 0.1),
+    rgba(200, 241, 53, 0.04)
+  );
+  border: 1px solid rgba(200, 241, 53, 0.18);
+  border-radius: 8px;
+  flex: unset;
+  min-width: unset;
+}
+
+.notepad-total-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.notepad-total-value {
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.notepad-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-left: auto;
+}
+
+.notepad-send-btn {
+  background: rgba(200, 241, 53, 0.08);
+  color: var(--accent);
+  border: 1px solid rgba(200, 241, 53, 0.24);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex: unset;
+  min-width: unset;
+}
+
+.notepad-send-btn:hover {
+  background: rgba(200, 241, 53, 0.14);
+  border-color: rgba(200, 241, 53, 0.45);
+}
+
+.notepad-send-btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.notepad-add-btn {
   background: var(--surface);
   color: var(--accent);
   border: 1px solid rgba(200, 241, 53, 0.3);
@@ -648,6 +712,39 @@ button:active {
 .notepad-add-btn:hover {
   background: rgba(200, 241, 53, 0.1);
   border-color: rgba(200, 241, 53, 0.55);
+}
+
+.notepad-report-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.notepad-report-status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.notepad-report-status.success {
+  color: var(--accent);
+  border-color: rgba(200, 241, 53, 0.22);
+}
+
+.notepad-report-status.error {
+  color: var(--accent2);
+  border-color: rgba(241, 53, 53, 0.24);
 }
 
 .notepad-list {
@@ -915,6 +1012,14 @@ button:active {
   }
   button {
     min-width: unset;
+  }
+  .notepad-toolbar-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+  .notepad-send-btn,
+  .notepad-add-btn {
+    flex: 1;
   }
   textarea {
     height: 180px;

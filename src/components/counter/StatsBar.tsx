@@ -1,8 +1,10 @@
+import type { TranslationFn } from "../../hooks/useTranslation";
+
 type Props = {
   lines: number;
   long: number;
   dup: number;
-  t: (k: any) => string;
+  t: TranslationFn;
 };
 
 export default function StatsBar({ lines, long, dup, t }: Props) {
