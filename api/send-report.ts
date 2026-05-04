@@ -34,7 +34,7 @@ function parseBody(body: ServerlessRequest["body"]): RequestBody {
 
 export default async function handler(
   req: ServerlessRequest,
-  res: ServerlessResponse
+  res: ServerlessResponse,
 ) {
   res.setHeader("Cache-Control", "no-store");
 
@@ -67,19 +67,19 @@ export default async function handler(
       },
       {
         timeout: 10000,
-      }
+      },
     );
 
     return res.status(200).json({ ok: true });
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error("Telegram API error:", error.response?.data || error.message);
-    } else {
-      console.error("Unexpected Telegram error:", error);
+      console.error("Telegram API error FULL:", error.response?.data);
+      return res.status(500).json({
+        error: error.response?.data || error.message,
+      });
     }
 
-    return res
-      .status(500)
-      .json({ error: "Failed to send report to Telegram" });
+    console.error("Unexpected error:", error);
+    return res.status(500).json({ error: "Unknown error" });
   }
 }
