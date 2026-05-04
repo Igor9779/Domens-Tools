@@ -50,6 +50,17 @@ export default function MainLayout() {
             <br />
             <span>{t("navJsonSub")}</span>
           </NavLink>
+
+          <NavLink
+            to="/notepad"
+            className={({ isActive }) =>
+              `app-nav-link ${isActive ? "active" : ""}`
+            }
+          >
+            {t("navNotepad")}
+            <br />
+            <span>{t("navNotepadSub")}</span>
+          </NavLink>
         </nav>
 
         <div className="lang-switcher">
