@@ -13,8 +13,9 @@ import {
   type TabsData,
   buildReport,
   buildSummaryReport,
+  saveReportKV,
+  getSummaryKV,
   saveReportLocal,
-  getSummary,
   calculateTotals,
   generateId,
 } from "../components/notepad/notepadUtils";
@@ -24,7 +25,7 @@ const emptyData: TabsData = Object.fromEntries(TABS.map((tab) => [tab, []]));
 type UsernameModalMode = "send" | "edit";
 
 export default function Notepad() {
-  const { t, lang } = useTranslation();
+  const { t } = useTranslation();
 
   const [activeTab, setActiveTab] = useState<string>(TABS[0]);
   const [data, setData] = useState<TabsData>(() => {
@@ -41,6 +42,7 @@ export default function Notepad() {
   });
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [isSendingReport, setIsSendingReport] = useState(false);
   const [reportStatus, setReportStatus] = useState<{
     type: "success" | "error";
@@ -95,6 +97,11 @@ export default function Notepad() {
     setConfirmDeleteId(null);
   };
 
+  const handleClearAll = () => {
+    setData(emptyData);
+    setShowConfirmClear(false);
+  };
+
   const handleCopy = (id: string, content: string) => {
     navigator.clipboard.writeText(content);
     setCopiedId(id);
@@ -109,9 +116,7 @@ export default function Notepad() {
       const response = await fetch("/send-report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: buildReport(data, name, TABS, t, lang),
-        }),
+        body: JSON.stringify({ text: buildReport(data, name, TABS) }),
       });
 
       const result = (await response.json().catch(() => null)) as {
@@ -122,7 +127,12 @@ export default function Notepad() {
         throw new Error(result?.error || t("notepadReportError"));
       }
 
+      const counts = Object.fromEntries(
+        TABS.map((tab) => [tab, data[tab]?.length ?? 0])
+      );
+      await saveReportKV(name, counts);
       saveReportLocal(name, data, TABS);
+
       setReportStatus({ type: "success", message: t("notepadReportSuccess") });
     } catch {
       setReportStatus({ type: "error", message: t("notepadReportError") });
@@ -155,25 +165,21 @@ export default function Notepad() {
   };
 
   const handleShowSummary = async () => {
-    const summary = getSummary(TABS);
-    const total = TABS.reduce((sum, tab) => sum + (summary[tab] ?? 0), 0);
+    try {
+      const { summary, total } = await getSummaryKV();
+      setSummaryData(summary);
 
-    setSummaryData(summary);
-
-    if (total > 0) {
-      try {
-        const response = await fetch("/send-report", {
+      if (total > 0) {
+        const telegramRes = await fetch("/send-report", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text: buildSummaryReport(summary, TABS) }),
         });
-
-        if (!response.ok) throw new Error();
-
+        if (!telegramRes.ok) throw new Error();
         setReportStatus({ type: "success", message: t("notepadReportSuccess") });
-      } catch {
-        setReportStatus({ type: "error", message: t("notepadReportError") });
       }
+    } catch {
+      setReportStatus({ type: "error", message: t("notepadReportError") });
     }
 
     setShowSummaryModal(true);
@@ -196,6 +202,7 @@ export default function Notepad() {
         onAddTask={addTask}
         onShowSummary={() => { void handleShowSummary(); }}
         onEditUsername={handleEditUsername}
+        onClearAll={() => setShowConfirmClear(true)}
       />
 
       {reportStatus && (
@@ -224,6 +231,25 @@ export default function Notepad() {
           onConfirm={() => deleteTask(confirmDeleteId)}
           onCancel={() => setConfirmDeleteId(null)}
         />
+      )}
+
+      {showConfirmClear && (
+        <div className="confirm-overlay" onClick={() => setShowConfirmClear(false)}>
+          <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
+            <p className="confirm-title">{t("notepadConfirmClearAll")}</p>
+            <div className="confirm-actions">
+              <button
+                className="btn-secondary"
+                onClick={() => setShowConfirmClear(false)}
+              >
+                {t("notepadConfirmNo")}
+              </button>
+              <button className="btn-danger" onClick={handleClearAll}>
+                {t("notepadConfirmClearYes")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {showUsernameModal && (

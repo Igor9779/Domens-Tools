@@ -14,6 +14,7 @@ type Props = {
   onAddTask: () => void;
   onShowSummary: () => void;
   onEditUsername: () => void;
+  onClearAll: () => void;
 };
 
 export default function NotepadTabs({
@@ -29,6 +30,7 @@ export default function NotepadTabs({
   onAddTask,
   onShowSummary,
   onEditUsername,
+  onClearAll,
 }: Props) {
   return (
     <div className="notepad-tabs">
@@ -74,6 +76,13 @@ export default function NotepadTabs({
           disabled={isSendingReport}
         >
           {isSendingReport ? t("notepadReportSending") : t("notepadReportSend")}
+        </button>
+        <button
+          className="notepad-clear-btn"
+          onClick={onClearAll}
+          title={t("notepadClearAll")}
+        >
+          🗑
         </button>
         <button
           className="notepad-add-btn"

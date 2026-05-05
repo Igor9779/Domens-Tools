@@ -51,6 +51,9 @@ export const i18n = {
     notepadSummaryTotal: "Всього",
     notepadSummaryEmpty: "Немає збережених звітів",
     notepadSummaryClose: "Закрити",
+    notepadClearAll: "Очистити все",
+    notepadConfirmClearAll: "Очистити всі задачі?",
+    notepadConfirmClearYes: "Очистити",
   },
   en: {
     navCounter: "Counter",
@@ -104,6 +107,9 @@ export const i18n = {
     notepadSummaryTotal: "Total",
     notepadSummaryEmpty: "No saved reports yet",
     notepadSummaryClose: "Close",
+    notepadClearAll: "Clear all",
+    notepadConfirmClearAll: "Clear all tasks?",
+    notepadConfirmClearYes: "Clear",
   },
   ru: {
     navCounter: "Счётчик",
@@ -157,5 +163,8 @@ export const i18n = {
     notepadSummaryTotal: "Итого",
     notepadSummaryEmpty: "Нет сохранённых отчётов",
     notepadSummaryClose: "Закрыть",
+    notepadClearAll: "Очистить все",
+    notepadConfirmClearAll: "Очистить все задачи?",
+    notepadConfirmClearYes: "Очистить",
   },
 } as const;

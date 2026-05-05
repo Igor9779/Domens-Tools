@@ -1,8 +1,7 @@
 {
   "rewrites": [
-    {
-      "source": "/send-report",
-      "destination": "/api/send-report"
-    }
+    { "source": "/send-report", "destination": "/api/send-report" },
+    { "source": "/save-report", "destination": "/api/save-report" },
+    { "source": "/get-summary", "destination": "/api/get-summary" }
   ]
 }

@@ -995,6 +995,26 @@ button:active {
   background: #ff4545;
 }
 
+/* Clear all button */
+.notepad-clear-btn {
+  background: rgba(241, 53, 53, 0.08);
+  color: var(--accent2);
+  border: 1px solid rgba(241, 53, 53, 0.28);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex: unset;
+  min-width: unset;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.notepad-clear-btn:hover {
+  background: rgba(241, 53, 53, 0.16);
+  border-color: rgba(241, 53, 53, 0.5);
+}
+
 /* Username chip in toolbar */
 .notepad-username-chip {
   background: var(--surface2);
