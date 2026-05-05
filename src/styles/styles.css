@@ -995,6 +995,155 @@ button:active {
   background: #ff4545;
 }
 
+/* Username chip in toolbar */
+.notepad-username-chip {
+  background: var(--surface2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  flex: unset;
+  min-width: unset;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.notepad-username-chip:hover {
+  color: var(--text);
+  border-color: #444;
+  background: var(--surface);
+}
+
+/* Summary icon button */
+.notepad-summary-btn {
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex: unset;
+  min-width: unset;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.notepad-summary-btn:hover {
+  color: var(--text);
+  border-color: #444;
+  background: rgba(200, 241, 53, 0.06);
+}
+
+/* Username input inside modal */
+.notepad-username-input {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  caret-color: var(--accent);
+}
+
+.notepad-username-input::placeholder {
+  color: var(--muted);
+}
+
+.notepad-username-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(200, 241, 53, 0.07);
+}
+
+.notepad-username-actions {
+  margin-top: 16px;
+}
+
+/* Summary modal */
+.notepad-summary-dialog {
+  max-width: 400px;
+}
+
+.notepad-summary-list {
+  margin: 18px 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.notepad-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
+.notepad-summary-tab {
+  font-weight: 700;
+  color: var(--text);
+  min-width: 36px;
+}
+
+.notepad-summary-dash {
+  color: var(--muted);
+}
+
+.notepad-summary-count {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--accent);
+  margin-left: auto;
+}
+
+.notepad-summary-unit {
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.notepad-summary-total {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--text);
+  padding: 10px 14px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.notepad-summary-empty {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 24px 0 8px;
+}
+
+.notepad-summary-close {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  min-width: unset;
+  flex: unset;
+}
+
 /* Responsive */
 @media (min-width: 1024px) {
   .container {

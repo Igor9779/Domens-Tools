@@ -1,28 +1,26 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "../hooks/useTranslation";
-
-type Task = {
-  id: string;
-  name: string;
-  content: string;
-  expanded: boolean;
-};
-
-type TabsData = Record<string, Task[]>;
-
-const TABS = ["2595", "2333", "3100"] as const;
-const STORAGE_KEY = "notepad_data";
-const REPORT_LOCALES = {
-  uk: "uk-UA",
-  en: "en-GB",
-  ru: "ru-RU",
-} as const;
-
-function generateId() {
-  return Math.random().toString(36).slice(2, 9) + Date.now().toString(36);
-}
+import NotepadTabs from "../components/notepad/NotepadTabs";
+import NotepadList from "../components/notepad/NotepadList";
+import NotepadConfirmDelete from "../components/notepad/NotepadConfirmDelete";
+import NotepadUsernameModal from "../components/notepad/NotepadUsernameModal";
+import NotepadSummaryModal from "../components/notepad/NotepadSummaryModal";
+import {
+  TABS,
+  STORAGE_KEY,
+  USERNAME_KEY,
+  type Task,
+  type TabsData,
+  buildReport,
+  saveReportLocal,
+  getSummary,
+  calculateTotals,
+  generateId,
+} from "../components/notepad/notepadUtils";
 
 const emptyData: TabsData = Object.fromEntries(TABS.map((tab) => [tab, []]));
+
+type UsernameModalMode = "send" | "edit";
 
 export default function Notepad() {
   const { t, lang } = useTranslation();
@@ -37,6 +35,9 @@ export default function Notepad() {
     }
     return { ...emptyData };
   });
+  const [username, setUsername] = useState<string>(() => {
+    return localStorage.getItem(USERNAME_KEY) ?? "";
+  });
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isSendingReport, setIsSendingReport] = useState(false);
@@ -44,6 +45,11 @@ export default function Notepad() {
     type: "success" | "error";
     message: string;
   } | null>(null);
+  const [usernameModalMode, setUsernameModalMode] =
+    useState<UsernameModalMode>("send");
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [summaryData, setSummaryData] = useState<Record<string, number>>({});
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -51,43 +57,12 @@ export default function Notepad() {
 
   useEffect(() => {
     if (!reportStatus) return;
-
-    const timeoutId = window.setTimeout(() => {
-      setReportStatus(null);
-    }, 3000);
-
-    return () => window.clearTimeout(timeoutId);
+    const id = window.setTimeout(() => setReportStatus(null), 3000);
+    return () => window.clearTimeout(id);
   }, [reportStatus]);
 
   const tasks = data[activeTab] ?? [];
-  const totalTasks = Object.values(data).reduce(
-    (sum, tabTasks) => sum + tabTasks.length,
-    0
-  );
-
-  const buildReport = (tabsData: TabsData) => {
-    const formattedDate = new Intl.DateTimeFormat(REPORT_LOCALES[lang], {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    }).format(new Date());
-
-    const total = TABS.reduce(
-      (sum, tab) => sum + (tabsData[tab]?.length ?? 0),
-      0
-    );
-
-    return [
-      `📊 ${t("notepadReportTitle")}:`,
-      `${t("notepadReportDateLabel")}: ${formattedDate}`,
-      "",
-      ...TABS.map(
-        (tab) => `${tab} - ${tabsData[tab]?.length ?? 0} ${t("notepadTasksUnit")}`
-      ),
-      "",
-      `${t("notepadReportTotalLine")} - ${total}`,
-    ].join("\n");
-  };
+  const totalTasks = calculateTotals(data, TABS);
 
   const addTask = () => {
     const newTask: Task = {
@@ -125,82 +100,82 @@ export default function Notepad() {
     setTimeout(() => setCopiedId(null), 1200);
   };
 
-  const sendReport = async () => {
+  const doSendReport = async (name: string) => {
     setIsSendingReport(true);
     setReportStatus(null);
 
     try {
       const response = await fetch("/send-report", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text: buildReport(data),
+          text: buildReport(data, name, TABS, t, lang),
         }),
       });
 
-      const result = (await response.json().catch(() => null)) as
-        | { error?: string }
-        | null;
+      const result = (await response.json().catch(() => null)) as {
+        error?: string;
+      } | null;
 
       if (!response.ok) {
         throw new Error(result?.error || t("notepadReportError"));
       }
 
-      setReportStatus({
-        type: "success",
-        message: t("notepadReportSuccess"),
-      });
+      saveReportLocal(name, data, TABS);
+      setReportStatus({ type: "success", message: t("notepadReportSuccess") });
     } catch {
-      setReportStatus({
-        type: "error",
-        message: t("notepadReportError"),
-      });
+      setReportStatus({ type: "error", message: t("notepadReportError") });
     } finally {
       setIsSendingReport(false);
     }
   };
 
-  const pendingTask = tasks.find((t) => t.id === confirmDeleteId);
+  const handleSendReport = () => {
+    if (!username) {
+      setUsernameModalMode("send");
+      setShowUsernameModal(true);
+      return;
+    }
+    void doSendReport(username);
+  };
+
+  const handleSaveUsername = (name: string) => {
+    setUsername(name);
+    localStorage.setItem(USERNAME_KEY, name);
+    setShowUsernameModal(false);
+    if (usernameModalMode === "send") {
+      void doSendReport(name);
+    }
+  };
+
+  const handleEditUsername = () => {
+    setUsernameModalMode("edit");
+    setShowUsernameModal(true);
+  };
+
+  const handleShowSummary = () => {
+    setSummaryData(getSummary(TABS));
+    setShowSummaryModal(true);
+  };
+
+  const pendingTask = tasks.find((task) => task.id === confirmDeleteId);
 
   return (
     <>
-      <div className="notepad-tabs">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            data-tab={tab}
-            className={`notepad-tab ${activeTab === tab ? "active" : ""}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-            {(data[tab]?.length ?? 0) > 0 && (
-              <span className="notepad-tab-badge">{data[tab].length}</span>
-            )}
-          </button>
-        ))}
-        <div className="notepad-total-pill" aria-live="polite">
-          <span className="notepad-total-label">{t("notepadTotal")}</span>
-          <span className="notepad-total-value">{totalTasks}</span>
-        </div>
-        <div className="notepad-toolbar-actions">
-          <button
-            className="notepad-send-btn"
-            onClick={sendReport}
-            disabled={isSendingReport}
-          >
-            {isSendingReport ? t("notepadReportSending") : t("notepadReportSend")}
-          </button>
-          <button
-            className="notepad-add-btn"
-            onClick={addTask}
-            title={t("notepadAdd")}
-          >
-            +
-          </button>
-        </div>
-      </div>
+      <NotepadTabs
+        tabs={TABS}
+        data={data}
+        activeTab={activeTab}
+        totalTasks={totalTasks}
+        isSendingReport={isSendingReport}
+        username={username}
+        t={t}
+        onTabChange={setActiveTab}
+        onSendReport={handleSendReport}
+        onAddTask={addTask}
+        onShowSummary={handleShowSummary}
+        onEditUsername={handleEditUsername}
+      />
 
       {reportStatus && (
         <div
@@ -211,95 +186,41 @@ export default function Notepad() {
         </div>
       )}
 
-      <div className="notepad-list" data-tab={activeTab}>
-        {tasks.length === 0 && (
-          <div className="empty">{t("notepadEmpty")}</div>
-        )}
-        {tasks.map((task) => (
-          <div
-            key={task.id}
-            className={`notepad-item ${task.expanded ? "expanded" : ""}`}
-          >
-            <div
-              className="notepad-item-header"
-              onClick={() => updateTask(task.id, { expanded: !task.expanded })}
-            >
-              <span className="notepad-chevron">
-                {task.expanded ? "▾" : "▸"}
-              </span>
-              <input
-                className="notepad-name-input"
-                value={task.name}
-                placeholder={t("notepadDefaultName")}
-                onClick={(e) => e.stopPropagation()}
-                onChange={(e) => updateTask(task.id, { name: e.target.value })}
-              />
-              <button
-                className="notepad-delete-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setConfirmDeleteId(task.id);
-                }}
-              >
-                ×
-              </button>
-            </div>
-            {task.expanded && (
-              <div className="notepad-item-body">
-                <textarea
-                  className="notepad-textarea"
-                  placeholder={t("notepadPlaceholder")}
-                  value={task.content}
-                  onChange={(e) =>
-                    updateTask(task.id, { content: e.target.value })
-                  }
-                />
-                <div className="notepad-item-actions">
-                  <button
-                    className="btn-secondary"
-                    onClick={() => updateTask(task.id, { content: "" })}
-                  >
-                    {t("notepadClear")}
-                  </button>
-                  <button
-                    className="btn-primary"
-                    onClick={() => handleCopy(task.id, task.content)}
-                  >
-                    {copiedId === task.id ? "✓" : t("notepadCopy")}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+      <NotepadList
+        tasks={tasks}
+        activeTab={activeTab}
+        copiedId={copiedId}
+        t={t}
+        onUpdateTask={updateTask}
+        onCopyTask={handleCopy}
+        onDeleteRequest={setConfirmDeleteId}
+      />
 
       {confirmDeleteId && (
-        <div
-          className="confirm-overlay"
-          onClick={() => setConfirmDeleteId(null)}
-        >
-          <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
-            <p className="confirm-title">{t("notepadConfirmDelete")}</p>
-            {pendingTask?.name && (
-              <p className="confirm-name">«{pendingTask.name}»</p>
-            )}
-            <div className="confirm-actions">
-              <button
-                className="btn-secondary"
-                onClick={() => setConfirmDeleteId(null)}
-              >
-                {t("notepadConfirmNo")}
-              </button>
-              <button
-                className="btn-danger"
-                onClick={() => deleteTask(confirmDeleteId)}
-              >
-                {t("notepadConfirmYes")}
-              </button>
-            </div>
-          </div>
-        </div>
+        <NotepadConfirmDelete
+          taskName={pendingTask?.name}
+          t={t}
+          onConfirm={() => deleteTask(confirmDeleteId)}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
+      )}
+
+      {showUsernameModal && (
+        <NotepadUsernameModal
+          initialValue={username}
+          t={t}
+          onSave={handleSaveUsername}
+          onCancel={() => setShowUsernameModal(false)}
+        />
+      )}
+
+      {showSummaryModal && (
+        <NotepadSummaryModal
+          tabs={TABS}
+          summary={summaryData}
+          t={t}
+          onClose={() => setShowSummaryModal(false)}
+        />
       )}
     </>
   );
