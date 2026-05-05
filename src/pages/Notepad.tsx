@@ -12,6 +12,7 @@ import {
   type Task,
   type TabsData,
   buildReport,
+  buildSummaryReport,
   saveReportLocal,
   getSummary,
   calculateTotals,
@@ -153,8 +154,28 @@ export default function Notepad() {
     setShowUsernameModal(true);
   };
 
-  const handleShowSummary = () => {
-    setSummaryData(getSummary(TABS));
+  const handleShowSummary = async () => {
+    const summary = getSummary(TABS);
+    const total = TABS.reduce((sum, tab) => sum + (summary[tab] ?? 0), 0);
+
+    setSummaryData(summary);
+
+    if (total > 0) {
+      try {
+        const response = await fetch("/send-report", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: buildSummaryReport(summary, TABS) }),
+        });
+
+        if (!response.ok) throw new Error();
+
+        setReportStatus({ type: "success", message: t("notepadReportSuccess") });
+      } catch {
+        setReportStatus({ type: "error", message: t("notepadReportError") });
+      }
+    }
+
     setShowSummaryModal(true);
   };
 
@@ -173,7 +194,7 @@ export default function Notepad() {
         onTabChange={setActiveTab}
         onSendReport={handleSendReport}
         onAddTask={addTask}
-        onShowSummary={handleShowSummary}
+        onShowSummary={() => { void handleShowSummary(); }}
         onEditUsername={handleEditUsername}
       />
 

@@ -76,6 +76,21 @@ export function getSummary(tabs: readonly string[]): Record<string, number> {
   return summary;
 }
 
+export function buildSummaryReport(
+  summary: Record<string, number>,
+  tabs: readonly string[]
+): string {
+  const total = tabs.reduce((sum, tab) => sum + (summary[tab] ?? 0), 0);
+
+  return [
+    "Всего задач выполнено командой:",
+    "",
+    ...tabs.map((tab) => `${tab}: ${summary[tab] ?? 0} тасок;`),
+    "",
+    `Итого выполнено: ${total}`,
+  ].join("\n");
+}
+
 export function calculateTotals(
   data: TabsData,
   tabs: readonly string[]
