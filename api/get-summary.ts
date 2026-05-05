@@ -27,18 +27,24 @@ export default async function handler(
     TABS.map((tab) => [tab, 0])
   );
 
-  const keys = await kv.keys("report:*");
+  try {
+    const users = await kv.smembers<string[]>("users");
 
-  if (keys.length > 0) {
-    const values = await Promise.all(
-      keys.map((key) => kv.get<Record<string, number>>(key))
-    );
-    for (const userData of values) {
-      if (!userData) continue;
-      for (const tab of TABS) {
-        summary[tab] = (summary[tab] ?? 0) + (userData[tab] ?? 0);
+    if (users.length > 0) {
+      const values = await Promise.all(
+        users.map((user) => kv.get<Record<string, number>>(`report:${user}`))
+      );
+
+      for (const userData of values) {
+        if (!userData) continue;
+        for (const tab of TABS) {
+          summary[tab] = (summary[tab] ?? 0) + (userData[tab] ?? 0);
+        }
       }
     }
+  } catch (error) {
+    console.error("get-summary KV error:", error);
+    return res.status(500).json({ error: "Failed to get summary" });
   }
 
   const total = TABS.reduce((sum, tab) => sum + summary[tab], 0);

@@ -53,6 +53,14 @@ export default async function handler(
     return res.status(400).json({ error: "counts must be an object" });
   }
 
-  await kv.set(`report:${username.trim()}`, counts);
-  return res.status(200).json({ ok: true });
+  const name = username.trim();
+
+  try {
+    await kv.set(`report:${name}`, counts);
+    await kv.sadd("users", name);
+    return res.status(200).json({ ok: true });
+  } catch (error) {
+    console.error("save-report KV error:", error);
+    return res.status(500).json({ error: "Failed to save report" });
+  }
 }
